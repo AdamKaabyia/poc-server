@@ -28,12 +28,15 @@ db = client['telegram']
 collection = db['telegram_test']
 log_collection = db['interaction_logs']  # New collection for logging interactions
 
+
 class Info(BaseModel):
     info: str
+
 
 class InteractionLog(BaseModel):
     user_query: str
     bot_response: str
+
 
 @app.post("/generate")
 async def generate_number():
@@ -44,6 +47,7 @@ async def generate_number():
     except PyMongoError as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
+
 @app.post("/store")
 async def store_info(info: Info):
     try:
@@ -52,6 +56,7 @@ async def store_info(info: Info):
     except PyMongoError as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
+
 @app.post("/log_interaction")
 async def log_interaction(log: InteractionLog):
     try:
@@ -59,6 +64,7 @@ async def log_interaction(log: InteractionLog):
         return {"message": "Interaction logged successfully"}
     except PyMongoError as e:
         raise HTTPException(status_code=500, detail=f"An error occurred while logging interaction: {str(e)}")
+
 
 @app.get("/health")
 async def health_check():
@@ -69,5 +75,7 @@ async def health_check():
     except PyMongoError as e:
         raise HTTPException(status_code=500, detail=f"MongoDB connection error: {str(e)}")
 
+
 if __name__ == '__main__':
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.environ.get('PORT', 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
