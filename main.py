@@ -4,7 +4,8 @@ import uvicorn
 import random
 import os
 from dotenv import load_dotenv
-from pymongo import MongoClient
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
 from pymongo.errors import PyMongoError
 
 # Load environment variables
@@ -14,7 +15,15 @@ app = FastAPI()
 
 # MongoDB setup
 MONGODB_URI = os.getenv('MONGODB_URI')
-client = MongoClient(MONGODB_URI)
+client = MongoClient(MONGODB_URI, server_api=ServerApi('1'))
+
+try:
+    client.admin.command('ping')
+    print("Pinged your deployment. You successfully connected to MongoDB!")
+except Exception as e:
+    print(e)
+    raise HTTPException(status_code=500, detail=f"MongoDB connection error: {str(e)}")
+
 db = client['telegram']
 collection = db['telegram_test']
 log_collection = db['interaction_logs']  # New collection for logging interactions
